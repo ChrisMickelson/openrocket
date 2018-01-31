@@ -128,11 +128,17 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	public double getRadialOffset() {
 		return this.radialPosition_m;
 	}
-	
+
 	@Override
-	public Coordinate[] getInstanceOffsets(){
-		checkState();
+	public double[] getInstanceAngles(){
+		final double baseAngle = getAngularOffset();
+		final double incrAngle = getInstanceAngleIncrement();
 		
+
+		double[] result = new double[ getInstanceCount()]; 
+		for( int i=0; i<getInstanceCount(); ++i){
+			result[i] = baseAngle + incrAngle*i;
+=======
 		Coordinate center = Coordinate.ZERO;
 		Coordinate[] toReturn = new Coordinate[this.instanceCount];
 		final double[] angles = getInstanceAngles();
@@ -140,9 +146,10 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 			final double curY = this.radialPosition_m * Math.cos(angles[instanceNumber]);
 			final double curZ = this.radialPosition_m * Math.sin(angles[instanceNumber]);
 			toReturn[instanceNumber] = center.add(0, curY, curZ );
+
 		}
 		
-		return toReturn;
+		return result;
 	}
 	
     @Override
@@ -150,6 +157,8 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
     	return this.angularSeparation;
     }
 	
+
+=======
 	@Override
 	public double[] getInstanceAngles(){
 		final double baseAngle = getAngularOffset();
@@ -163,23 +172,17 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 		return result;
 	}
 	
+
 	@Override
-	public Coordinate[] getLocations() {
-		if (null == this.parent) {
-			throw new BugException(" Attempted to get absolute position Vector of a Stage without a parent. ");
-		}
+	public Coordinate[] getInstanceOffsets(){
+		checkState();
 		
-		Coordinate[] parentInstances = this.parent.getLocations();
-		if (1 != parentInstances.length) {
-			throw new BugException(" OpenRocket does not (yet) support external stages attached to external stages. " +
-					"(assumed reason for getting multiple parent locations into an external stage.)");
-		}
-		
-		final Coordinate center = parentInstances[0].add( this.position);
-		Coordinate[] instanceLocations = this.getInstanceOffsets();
-		Coordinate[] toReturn = new Coordinate[ instanceLocations.length];
-		for( int i = 0; i < toReturn.length; i++){
-			toReturn[i] = center.add( instanceLocations[i]); 
+		Coordinate[] toReturn = new Coordinate[this.instanceCount];
+		final double[] angles = getInstanceAngles();
+		for (int instanceNumber = 0; instanceNumber < this.instanceCount; instanceNumber++) {
+			final double curY = this.radialPosition_m * Math.cos(angles[instanceNumber]);
+			final double curZ = this.radialPosition_m * Math.sin(angles[instanceNumber]);
+			toReturn[instanceNumber] = new Coordinate(0, curY, curZ );
 		}
 		
 		return toReturn;
@@ -206,6 +209,7 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 		return this.autoRadialPosition;
 	}
 	
+	@Override
 	public void setAutoRadialOffset( final boolean enabled ){
 		this.autoRadialPosition = enabled;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);	
@@ -228,13 +232,13 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	@Override
 	protected void update() {
 		super.update();
-		
-		if( this.autoRadialPosition ){
-			ComponentAssembly parentAssembly = (ComponentAssembly)this.parent;
-			if( null == parentAssembly ){
+
+		if( this.autoRadialPosition){
+			if( null == this.parent ){
 				this.radialPosition_m = this.getOuterRadius();
-			}else{
-				this.radialPosition_m = this.getOuterRadius() + parentAssembly.getOuterRadius();
+			}else if( BodyTube.class.isAssignableFrom(this.parent.getClass())) {
+				BodyTube parentBody = (BodyTube)this.parent;
+				this.radialPosition_m = this.getOuterRadius() + parentBody.getOuterRadius();				
 			}
 		}
 	}
