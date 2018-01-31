@@ -197,13 +197,20 @@ public abstract class RocketRenderer {
 	}
 	
 	private void renderTree( GL2 gl, final Collection<Geometry> geometryList){
+		// cycle through tree, drawing non-transparent components first to preserve proper depth testing
+		for(Geometry geom: geometryList ) {
+        	if( geom.active ) {
+                if( !isDrawnTransparent( (RocketComponent)geom.obj) ){
+                    renderComponent(gl, geom, 1.0f);
+                }
+            }
+        }
+
 	    for(Geometry geom: geometryList ) {
             if( geom.active ) {
                 if( isDrawnTransparent( (RocketComponent)geom.obj) ){
                     // Draw T&T front faces blended, without depth test
                     renderComponent(gl, geom, 0.2f);
-                }else{
-                    renderComponent(gl, geom, 1.0f);
                 }
             }
         }
