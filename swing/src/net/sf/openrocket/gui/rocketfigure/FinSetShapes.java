@@ -15,9 +15,12 @@ public class FinSetShapes extends RocketComponentShape {
 	public static RocketComponentShape[] getShapesSide(
 			net.sf.openrocket.rocketcomponent.RocketComponent component, 
 			Transformation transformation,
-			Coordinate componentAbsoluteLocation) {
+			Coordinate instanceAbsoluteLocation) {
 		net.sf.openrocket.rocketcomponent.FinSet finset = (net.sf.openrocket.rocketcomponent.FinSet)component;
 
+
+		Coordinate finSetFront = instanceAbsoluteLocation;
+=======
 		
 		int finCount = finset.getFinCount();
 		Transformation cantRotation = finset.getCantRotation();
@@ -25,46 +28,31 @@ public class FinSetShapes extends RocketComponentShape {
 		Transformation finRotation = finset.getFinRotationTransformation();
 		
 		Coordinate finSetFront = componentAbsoluteLocation;
+
 		Coordinate finPoints[] = finset.getFinPointsWithTab();
 		
-		// TODO: MEDIUM: sloping radius
-		double radius = finset.getBodyRadius();
-		
-		// Translate & rotate the coordinates
-		for (int i=0; i<finPoints.length; i++) {
-			finPoints[i] = cantRotation.transform(finPoints[i]);
-			finPoints[i] = baseRotation.transform(finPoints[i].add(0,radius,0));
-		}
-		
+		Transformation cantRotation = finset.getCantRotation();
+        finPoints = cantRotation.transform(finPoints);
+		finPoints = transformation.transform(finPoints);
 
 		// Generate shapes
-		RocketComponentShape[] finShape = new RocketComponentShape[ finCount];
-		for (int finNum=0; finNum<finCount; finNum++) {
-			Coordinate a;
-			Path2D.Float p;
-			
+        Path2D.Float p;
+		{
 			// Make polygon
 			p = new Path2D.Float();
 			for (int i=0; i<finPoints.length; i++) {
-				// previous version
-				// a = transformation.transform(finset.toAbsolute(finPoints[i])[0]);
-				a = transformation.transform(finSetFront.add(finPoints[i]));
+				Coordinate c = finSetFront.add(finPoints[i]);
 				
 				if (i==0)
-					p.moveTo(a.x*S, a.y*S);
+					p.moveTo(c.x*S, c.y*S);
 				else
-					p.lineTo(a.x*S, a.y*S);			
+					p.lineTo(c.x*S, c.y*S);			
 			}
 			
 			p.closePath();
-			finShape[finNum] = new RocketComponentShape( p, finset);
-
-			// Rotate fin coordinates
-			for (int i=0; i<finPoints.length; i++)
-				finPoints[i] = finRotation.transform(finPoints[i]);
 		}
 		
-		return finShape;
+		return new RocketComponentShape[] {new RocketComponentShape(p, finset)};
 	}
 	
 	public static RocketComponentShape[] getShapesBack(
@@ -73,7 +61,7 @@ public class FinSetShapes extends RocketComponentShape {
 			Coordinate location) {
 	
 		net.sf.openrocket.rocketcomponent.FinSet finset = (net.sf.openrocket.rocketcomponent.FinSet)component; 
-		
+        
 		Shape[] toReturn;
 
 		if (MathUtil.equals(finset.getCantAngle(),0)){
@@ -89,51 +77,42 @@ public class FinSetShapes extends RocketComponentShape {
 	
 	private static Shape[] uncantedShapesBack(net.sf.openrocket.rocketcomponent.FinSet finset,
 			Transformation transformation,
-			Coordinate location) {
+			Coordinate finFront) {
 		
-		int fins = finset.getFinCount();
-		double radius = finset.getBodyRadius();
 		double thickness = finset.getThickness();
 		double height = finset.getSpan();
+
+=======
 		Coordinate compCenter = location;
 		Transformation baseRotation = Transformation.rotate_x( finset.getAngularOffset());
 		Transformation finRotation = finset.getFinRotationTransformation();
-		
 
+		
 		// Generate base coordinates for a single fin
 		Coordinate c[] = new Coordinate[4];
-		c[0]=new Coordinate(0,radius,-thickness/2);
-		c[1]=new Coordinate(0,radius,thickness/2);
-		c[2]=new Coordinate(0,height+radius,thickness/2);
-		c[3]=new Coordinate(0,height+radius,-thickness/2);
+		c[0]=new Coordinate(0, 0,-thickness/2);
+        c[1]=new Coordinate(0, 0,thickness/2);
+        c[2]=new Coordinate(0,height,thickness/2);
+        c[3]=new Coordinate(0,height,-thickness/2);
 
 		// Apply base rotation
-		transformPoints(c,baseRotation);
+		c = transformation.transform(c);
+          
+		// Make polygon
+		Coordinate a;
+		Path2D.Double p = new Path2D.Double();
 		
-		// Generate shapes
-		Shape[] s = new Shape[fins];
-		for (int fin=0; fin<fins; fin++) {
-			Coordinate a;
-			Path2D.Double p;
-
-			// Make polygon
-			p = new Path2D.Double();
-			a = transformation.transform(compCenter.add( c[0] ));
-			p.moveTo(a.z*S, a.y*S);
-			a = transformation.transform(compCenter.add( c[1] ));
-			p.lineTo(a.z*S, a.y*S);			
-			a = transformation.transform(compCenter.add( c[2] ));
-			p.lineTo(a.z*S, a.y*S);			
-			a = transformation.transform(compCenter.add( c[3] ));
-			p.lineTo(a.z*S, a.y*S);	
-			p.closePath();
-			s[fin] = p;
-
-			// Rotate fin coordinates
-			transformPoints(c,finRotation);
-		}
+	    a = finFront.add( c[0] );
+		p.moveTo(a.z*S, a.y*S);
+		a = finFront.add( c[1] );
+		p.lineTo(a.z*S, a.y*S);			
+		a = finFront.add( c[2] );
+		p.lineTo(a.z*S, a.y*S);		
+		a = finFront.add( c[3] );
+		p.lineTo(a.z*S, a.y*S);
+		p.closePath();
 		
-		return s;
+		return new Shape[]{p};
 	}
 	
 	
@@ -143,11 +122,14 @@ public class FinSetShapes extends RocketComponentShape {
 			Coordinate location) {
 		int i;
 		int fins = finset.getFinCount();
-		double radius = finset.getBodyRadius();
+//		double radius = finset.getBodyRadius();
 		double thickness = finset.getThickness();
 		
+
+=======
 		Transformation baseRotation = Transformation.rotate_x( finset.getAngularOffset());
 		Transformation finRotation = finset.getFinRotationTransformation();
+
 		Transformation cantRotation = finset.getCantRotation();
 
 		Coordinate[] sidePoints;
@@ -160,9 +142,9 @@ public class FinSetShapes extends RocketComponentShape {
 				break;
 		}
 		
-		transformPoints(points,cantRotation);
-		transformPoints(points,new Transformation(0,radius,0));
-		transformPoints(points,baseRotation);
+		points = cantRotation.transform( points );
+//		transformPoints(points,new Transformation(0,radius,0));
+		points = transformation.transform( points );
 		
 		
 		sidePoints = new Coordinate[points.length];
@@ -197,10 +179,6 @@ public class FinSetShapes extends RocketComponentShape {
 				
 				s[2*fin] = makePolygonBack(sidePoints,finset,transformation, location);
 				s[2*fin+1] = makePolygonBack(backPoints,finset,transformation, location);
-				
-				// Rotate fin coordinates
-				transformPoints(sidePoints,finRotation);
-				transformPoints(backPoints,finRotation);
 			}
 			
 		} else {
@@ -208,7 +186,6 @@ public class FinSetShapes extends RocketComponentShape {
 			s = new Shape[fins];
 			for (int fin=0; fin<fins; fin++) {
 				s[fin] = makePolygonBack(sidePoints,finset,transformation, location);
-				transformPoints(sidePoints,finRotation);
 			}
 			
 		}
