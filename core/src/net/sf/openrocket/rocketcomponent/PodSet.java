@@ -84,6 +84,39 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	}
 	
 	@Override
+
+	public double[] getInstanceAngles(){
+		final double baseAngle = getAngularOffset();
+		final double incrAngle = getInstanceAngleIncrement();
+		
+		double[] result = new double[ getInstanceCount()]; 
+		for( int i=0; i<getInstanceCount(); ++i){
+			result[i] = baseAngle + incrAngle*i;
+=======
+	public Coordinate[] getInstanceOffsets(){
+		checkState();
+		
+		Coordinate center = Coordinate.ZERO;
+		Coordinate[] toReturn = new Coordinate[this.instanceCount];
+		final double[] angles = getInstanceAngles();
+		for (int instanceNumber = 0; instanceNumber < this.instanceCount; instanceNumber++) {
+			final double curY = this.radialPosition_m * Math.cos(angles[instanceNumber]);
+			final double curZ = this.radialPosition_m * Math.sin(angles[instanceNumber]);
+			toReturn[instanceNumber] = center.add(0, curY, curZ );
+
+		}
+		
+		return result;
+	}
+
+=======
+		
+	@Override
+	public double getInstanceAngleIncrement(){
+		return angularSeparation;
+	}
+	
+	@Override
 	public double[] getInstanceAngles(){
 		final double baseAngle = getAngularOffset();
 		final double incrAngle = getInstanceAngleIncrement();
@@ -95,6 +128,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 		
 		return result;
 	}
+
 	
 	@Override
 	public Coordinate[] getInstanceOffsets(){

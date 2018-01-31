@@ -50,17 +50,17 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		//// Body tube diameter
 		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Outerdiameter")));
 
-		DoubleModel od = new DoubleModel(component, "OuterRadius", 2, UnitGroup.UNITS_LENGTH, 0);
+		final DoubleModel outerRadiusModel= new DoubleModel(component, "OuterRadius", 2, UnitGroup.UNITS_LENGTH, 0);
 		// Diameter = 2*Radius
 
-		spin = new JSpinner(od.getSpinnerModel());
+		spin = new JSpinner(outerRadiusModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
 
-		panel.add(new UnitSelector(od), "growx");
-		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 0px");
+		panel.add(new UnitSelector(outerRadiusModel), "growx");
+		panel.add(new BasicSlider(outerRadiusModel.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 0px");
 
-		JCheckBox check = new JCheckBox(od.getAutomaticAction());
+		JCheckBox check = new JCheckBox(outerRadiusModel.getAutomaticAction());
 		//// Automatic
 		check.setText(trans.get("BodyTubecfg.checkbox.Automatic"));
 		panel.add(check, "skip, span 2, wrap");
@@ -70,29 +70,34 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Innerdiameter")));
 
 		// Diameter = 2*Radius
-		DoubleModel m = new DoubleModel(component, "InnerRadius", 2, UnitGroup.UNITS_LENGTH, 0);
+		final DoubleModel innerRadiusModel = new DoubleModel(component, "InnerRadius", 2, UnitGroup.UNITS_LENGTH, 0);
 
 
-		spin = new JSpinner(m.getSpinnerModel());
+		spin = new JSpinner(innerRadiusModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
 
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(new DoubleModel(0), od)), "w 100lp, wrap");
+		panel.add(new UnitSelector(innerRadiusModel), "growx");
+		panel.add(new BasicSlider(innerRadiusModel.getSliderModel(new DoubleModel(0), outerRadiusModel)), "w 100lp, wrap");
 
 
 		////  Wall thickness
 		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Wallthickness")));
 
-		m = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
+		final DoubleModel thicknessModel = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
 
-		spin = new JSpinner(m.getSpinnerModel());
+		spin = new JSpinner(thicknessModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
 
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap 0px");
-
+		panel.add(new UnitSelector(thicknessModel), "growx");
+		panel.add(new BasicSlider(thicknessModel.getSliderModel(0, 0.01)), "w 100lp, wrap 0px");
+        innerRadiusModel.addChangeListener(thicknessModel);
+        outerRadiusModel.addChangeListener(thicknessModel);
+		
+		thicknessModel.addChangeListener(outerRadiusModel);
+        thicknessModel.addChangeListener(innerRadiusModel);
+		
 		//// Filled
 		check = new JCheckBox(new BooleanModel(component, "Filled"));
 		check.setText(trans.get("BodyTubecfg.checkbox.Filled"));

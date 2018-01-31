@@ -60,26 +60,24 @@ public class InnerTubeConfig extends RocketComponentConfig {
 
 		//// General and General properties
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
-		DoubleModel m;
 		JSpinner spin;
-		DoubleModel od = null;
-
+		
 		//// Outer diameter
 		panel.add(new JLabel(trans.get("ThicknessRingCompCfg.tab.Outerdiam")));
 
 		//// OuterRadius
-		od = new DoubleModel(component, "OuterRadius", 2, UnitGroup.UNITS_LENGTH, 0);
+		final DoubleModel outerRadiusModel = new DoubleModel(component, "OuterRadius", 2, UnitGroup.UNITS_LENGTH, 0);
 		// Diameter = 2*Radius
 
-		spin = new JSpinner(od.getSpinnerModel());
+		spin = new JSpinner(outerRadiusModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
 
-		panel.add(new UnitSelector(od), "growx");
-		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap");
+		panel.add(new UnitSelector(outerRadiusModel), "growx");
+		panel.add(new BasicSlider(outerRadiusModel.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap");
 
-		if (od.isAutomaticAvailable()) {
-			JCheckBox check = new JCheckBox(od.getAutomaticAction());
+		if (outerRadiusModel.isAutomaticAvailable()) {
+			JCheckBox check = new JCheckBox(outerRadiusModel.getAutomaticAction());
 			//// Automatic
 			check.setText(trans.get("ringcompcfg.Automatic"));
 			panel.add(check, "skip, span 2, wrap");
@@ -89,17 +87,17 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		panel.add(new JLabel(trans.get("ThicknessRingCompCfg.tab.Innerdiam")));
 
 		//// InnerRadius
-		m = new DoubleModel(component, "InnerRadius", 2, UnitGroup.UNITS_LENGTH, 0);
+		final DoubleModel innerRadiusModel = new DoubleModel(component, "InnerRadius", 2, UnitGroup.UNITS_LENGTH, 0);
 
-		spin = new JSpinner(m.getSpinnerModel());
+		spin = new JSpinner(innerRadiusModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
 
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(new DoubleModel(0), od)), "w 100lp, wrap");
+		panel.add(new UnitSelector(innerRadiusModel), "growx");
+		panel.add(new BasicSlider(innerRadiusModel.getSliderModel(new DoubleModel(0), outerRadiusModel)), "w 100lp, wrap");
 
-		if (m.isAutomaticAvailable()) {
-			JCheckBox check = new JCheckBox(m.getAutomaticAction());
+		if (innerRadiusModel.isAutomaticAvailable()) {
+			JCheckBox check = new JCheckBox(innerRadiusModel.getAutomaticAction());
 			//// Automatic
 			check.setText(trans.get("ringcompcfg.Automatic"));
 			panel.add(check, "skip, span 2, wrap");
@@ -110,28 +108,32 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		panel.add(new JLabel(trans.get("ThicknessRingCompCfg.tab.Wallthickness")));
 
 		//// Thickness
-		m = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
+		final DoubleModel thicknessModel = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
 
-		spin = new JSpinner(m.getSpinnerModel());
+		spin = new JSpinner(thicknessModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
 
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap");
-
+		panel.add(new UnitSelector(thicknessModel), "growx");
+		panel.add(new BasicSlider(thicknessModel.getSliderModel(0, 0.01)), "w 100lp, wrap");
+        innerRadiusModel.addChangeListener(thicknessModel);
+        outerRadiusModel.addChangeListener(thicknessModel);
+	        
+		thicknessModel.addChangeListener(outerRadiusModel);
+		thicknessModel.addChangeListener(innerRadiusModel);
 
 		////  Inner tube length
 		panel.add(new JLabel(trans.get("ThicknessRingCompCfg.tab.Length")));
 
 		//// Length
-		m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
+		final DoubleModel lengthModel = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
 
-		spin = new JSpinner(m.getSpinnerModel());
+		spin = new JSpinner(lengthModel .getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
 
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
+		panel.add(new UnitSelector(lengthModel ), "growx");
+		panel.add(new BasicSlider(lengthModel .getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
 
 
 		////  Position
@@ -153,13 +155,13 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		panel.add(new JLabel(trans.get("ringcompcfg.plus")), "right");
 
 		//// PositionValue
-		m = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
-		spin = new JSpinner(m.getSpinnerModel());
+		final DoubleModel offsetModel = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
+		spin = new JSpinner(offsetModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
 
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(
+		panel.add(new UnitSelector(offsetModel), "growx");
+		panel.add(new BasicSlider(offsetModel.getSliderModel(
 				new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
 				new DoubleModel(component.getParent(), "Length"))),
 				"w 100lp, wrap");

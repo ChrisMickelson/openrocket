@@ -480,6 +480,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 						" key=" + key + " value=" + value);
 				oldValue = (Boolean) value;
 				setAutomatic((Boolean) value);
+				fireStateChanged();
 			} else {
 				log.debug("Passing ActionModel putValue call to supermethod for " + DoubleModel.this.toString() +
 						" key=" + key + " value=" + value);
@@ -765,6 +766,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		
 		try {
 			setMethod.invoke(source, v / multiplier);
+			fireStateChanged();
 		} catch (IllegalArgumentException e) {
 			throw new BugException("Unable to invoke setMethod of " + this, e);
 		} catch (IllegalAccessException e) {

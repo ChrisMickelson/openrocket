@@ -18,7 +18,17 @@ public class FinSetShapes extends RocketComponentShape {
 			Coordinate instanceAbsoluteLocation) {
 		net.sf.openrocket.rocketcomponent.FinSet finset = (net.sf.openrocket.rocketcomponent.FinSet)component;
 
+
 		Coordinate finSetFront = instanceAbsoluteLocation;
+=======
+		
+		int finCount = finset.getFinCount();
+		Transformation cantRotation = finset.getCantRotation();
+		Transformation baseRotation = Transformation.rotate_x(finset.getAngularOffset()); // rotation about x-axis
+		Transformation finRotation = finset.getFinRotationTransformation();
+		
+		Coordinate finSetFront = componentAbsoluteLocation;
+
 		Coordinate finPoints[] = finset.getFinPointsWithTab();
 		
 		Transformation cantRotation = finset.getCantRotation();
@@ -71,6 +81,12 @@ public class FinSetShapes extends RocketComponentShape {
 		
 		double thickness = finset.getThickness();
 		double height = finset.getSpan();
+
+=======
+		Coordinate compCenter = location;
+		Transformation baseRotation = Transformation.rotate_x( finset.getAngularOffset());
+		Transformation finRotation = finset.getFinRotationTransformation();
+
 		
 		// Generate base coordinates for a single fin
 		Coordinate c[] = new Coordinate[4];
@@ -109,6 +125,11 @@ public class FinSetShapes extends RocketComponentShape {
 //		double radius = finset.getBodyRadius();
 		double thickness = finset.getThickness();
 		
+
+=======
+		Transformation baseRotation = Transformation.rotate_x( finset.getAngularOffset());
+		Transformation finRotation = finset.getFinRotationTransformation();
+
 		Transformation cantRotation = finset.getCantRotation();
 
 		Coordinate[] sidePoints;

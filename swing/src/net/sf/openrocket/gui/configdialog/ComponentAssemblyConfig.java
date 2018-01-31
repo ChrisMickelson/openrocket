@@ -32,7 +32,9 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 		super(document, component);
 	
 		// only stages which are actually off-centerline will get the dialog here:
+
 		if( ParallelStage.class.isAssignableFrom( component.getClass()) || PodSet.class.isAssignableFrom( component.getClass())){
+
 			tabbedPane.insertTab( trans.get("RocketCompCfg.tab.Assembly"), null, parallelTab( (ComponentAssembly)component ), trans.get("RocketCompCfg.tab.AssemblyComment"), 0);
 			tabbedPane.setSelectedIndex(0);
 		}

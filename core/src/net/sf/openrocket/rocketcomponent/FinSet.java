@@ -609,6 +609,36 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		return getBoundingBox().toCollection();
 	}
 	
+
+=======
+//	/**
+//	 * Adds the 2d-coordinate bound (x,y) to the collection for both z-components and for
+//	 * all fin rotations.
+//	 */
+//	private void addFinBound(Collection<Coordinate> set, double x, double y) {
+//		Coordinate c;
+//		int i;
+//		
+//		c = new Coordinate(x, y, thickness / 2);
+//		c = baseRotation.transform(c);
+//		set.add(c);
+//		for (i = 1; i < fins; i++) {
+//			c = finRotation.transform(c);
+//			set.add(c);
+//		}
+//		
+//		c = new Coordinate(x, y, -thickness / 2);
+//		c = baseRotation.transform(c);
+//		set.add(c);
+//		for (i = 1; i < fins; i++) {
+//			c = finRotation.transform(c);
+//			set.add(c);
+//		}
+//	}
+//	
+//	
+	
+
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
 		if (e.isAerodynamicChange()) {
@@ -706,6 +736,19 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	
 	@Override
 	public double getAngularOffset() {
+
+=======
+		ComponentAssembly stage = this.getAssembly();
+		if( PodSet.class.isAssignableFrom( stage.getClass() )){
+			PodSet assembly= (PodSet)stage;
+			return assembly.getAngularOffset() + baseRotationValue;
+		}else if( ParallelStage.class.isAssignableFrom( stage.getClass())){
+			ParallelStage assembly = (ParallelStage)stage;
+			log.debug("detected p-stage with position: "+assembly.getAngularOffset());
+			return assembly.getAngularOffset() + baseRotationValue;
+		}
+		
+
 		return baseRotationValue;
 	}
 
@@ -731,16 +774,21 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 		
 		double[] result = new double[ getFinCount()]; 
 		for( int i=0; i<getFinCount(); ++i){
+
 			double currentAngle = baseAngle + incrAngle*i;
 			if( Math.PI*2 <= currentAngle)
 				currentAngle -= Math.PI*2;
 			result[i] = currentAngle;
+=======
+			result[i] = baseAngle + incrAngle*i;
+
 		}
 		
 		return result;
 	}
 
 	@Override
+
 	public Coordinate[] getInstanceOffsets(){
 		checkState();
 		
@@ -758,6 +806,8 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	}
 
 	@Override
+=======
+
 	public Position getAxialPositionMethod( ){
 		return getRelativePositionMethod();
 	}
@@ -781,11 +831,14 @@ public abstract class FinSet extends ExternalComponent implements RingInstanceab
 	public void setRadialOffset(double radius) {
 		// no-op.  Not allowed for fins		
 	}
+
 	
 	@Override
 	public void setAutoRadialOffset( final boolean auto ) {
 		// no-op.  Fins are *always* automatically positioned
 	}
+=======
+
 
 	@Override
 	public void setInstanceCount(int newCount) {
